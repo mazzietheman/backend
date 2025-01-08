@@ -20,5 +20,5 @@ exports.process = async (transaction) => {
     // Simulate payment execution
     console.log(`Payment executed for transaction ${transaction._id}`);
     return true;
-  };
+};
   

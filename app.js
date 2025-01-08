@@ -18,10 +18,7 @@ app.use('/transactions', transactionRoutes);
 app.use('/payments', paymentRoutes);
 
 // Database connection
-mongoose.connect('mongodb://localhost:27017/recycling', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://localhost:27017/recycling', {});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Connection error:'));
