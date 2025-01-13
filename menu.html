@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Users</h1>
+    <div id="message"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="users-table">
+            <!-- User rows will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        const apiUrl = 'http://localhost:3000';
+
+        // Fetch and display users
+        async function fetchUsers() {
+            try {
+                const response = await fetch(`${apiUrl}/users`);
+                if (response.status === 403) {
+                    document.body.innerHTML = '<h1>Access Denied</h1>';
+                    return;
+                }
+                const users = await response.json();
+                const table = document.getElementById('users-table');
+                table.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td><input type="text" value="${user.name}" id="name-${user.id}"></td>
+                        <td><input type="text" value="${user.role}" id="role-${user.id}"></td>
+                        <td>
+                            <button onclick="editUser(${user.id})">Save</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('message').innerText = 'Error fetching users.';
+            }
+        }
+
+        // Edit a user
+        async function editUser(userId) {
+            const name = document.getElementById(`name-${userId}`).value;
+            const role = document.getElementById(`role-${userId}`).value;
+
+            try {
+                const response = await fetch(`${apiUrl}/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, role })
+                });
+
+                const result = await response.json();
+                document.getElementById('message').innerText = result.message;
+                if (response.ok) fetchUsers(); // Refresh the user list
+            } catch (err) {
+                console.error(err);
+                document.getElementById('message').innerText = 'Error updating user.';
+            }
+        }
+
+        // Initialize page
+        fetchUsers();
+    </script>
+</body>
+</html>
